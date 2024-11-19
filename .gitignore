@@ -1,0 +1,62 @@
+# Created by .ignore support plugin (hsz.mobi)
+### PyCharm ###
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+
+# User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+
+# Gradle
+.idea/**/gradle.xml
+.idea/**/libraries
+
+# Gradle and Maven with auto-import
+# When using Gradle or Maven with auto-import, the above rules cause false positives because of the way the IDE is configured.
+# Use the following ruleset instead to avoid such false positives (https://github.com/JetBrains/intellij-community/pull/4938):
+# Gradle
+.idea/.gradle
+.idea/gradle.xml
+.idea/jarRepositories.xml
+# Maven
+.idea/maven.xml
+.idea/modules.xml
+# Gradle Caches
+.gradle/
+build/
+
+# Caches of other IDEs
+.PyCharm*/
+.Rider*/
+.idea/
+
+# Temporary files
+.idea/**/caches/
+.idea/**/logs/
+.idea/**/nav.xml
+.idea/**/sandbox/
+.idea/**/tmp/
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Other
+out/
