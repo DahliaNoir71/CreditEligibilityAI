@@ -11,6 +11,7 @@ def get_categorical_columns(df_data):
     # Select non binary categorical columns.
     other_categorical_columns = [col for col in categorical_columns
                                  if col not in binary_categorical_columns]
+
     return binary_categorical_columns, other_categorical_columns
 
 def set_binary_to_numeric(binary_categorical_columns, df_data):
@@ -19,15 +20,14 @@ def set_binary_to_numeric(binary_categorical_columns, df_data):
         df_data.loc[df_data[col].notna(), col] = df_data.loc[df_data[col].notna(), col].map({df_data[col].unique()[0]: 0, df_data[col].unique()[1]: 1})
     return df_data
 
+
 def set_non_binary_to_numeric(other_categorical_columns, df_data):
-    # Encoding with LabelEncoder
-    label_encoders = {}
     for col in other_categorical_columns:
+        if col == "Dependents":
+            # Remplacer 3+ par 3
+            df_data.loc[:, col] = df_data[col].str.replace("3+", "3")
         le = LabelEncoder()
-        # Convert to string to avoid problems with NaN
-        df_data.loc[df_data[col].notna(), col] = le.fit_transform(df_data.loc[df_data[col].notna(), col].astype(str))
-        # Save the label encoder for decoding if necessary
-        label_encoders[col] = le
+        df_data.loc[:, col] = le.fit_transform(df_data[col].astype(str))
     return df_data
 
 
@@ -51,10 +51,13 @@ def split_target_features(df_data, target):
     y = df_data[target]
     return x, y
 
-def fill_missing_values(df_data):
-    # Fill missing values
-    imputer = SimpleImputer(strategy='mean')
-    df_data = pd.DataFrame(imputer.fit_transform(df_data), columns=df_data.columns)
-    return df_data
+
+
+def preprocess_data(df, target):
+    """Prétraite les données : gère les NaNs et encode les variables catégoriques."""
+    df = df.dropna()
+    df = categoricals_to_numeric(df)  # Encode les variables catégoriques
+    train_data, predict_data = split_train_predict_data(df, target)
+    return train_data
 
 
