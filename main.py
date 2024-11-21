@@ -1,5 +1,5 @@
 from IPython.core.display_functions import display
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 
 from src.csv import get_data_from_csv
 from src.models import get_models
@@ -23,7 +23,6 @@ def main():
     df_data = get_data_from_csv(csv_path, target, selected_features, column_id)
     train_data, predict_data = split_train_predict(df_data, target)
     train_data = clean_loan_data(train_data)
-    display(train_data)
     x, y = split_target_features(train_data, target)
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
 
@@ -32,7 +31,10 @@ def main():
     param_grids = get_param_grids()
 
     # Recherche des meilleurs modèles
-    best_models_grid_search = get_best_models(models, param_grids, GridSearchCV, x_train, y_train)
+    best_models_grid_search = get_best_models(models, param_grids, RandomizedSearchCV, x_train, y_train)
+
+    # Affichage des meilleurs modèles
+    display(best_models_grid_search)
 
 
 if __name__ == '__main__':

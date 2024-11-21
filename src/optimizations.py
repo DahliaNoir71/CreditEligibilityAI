@@ -1,4 +1,4 @@
-from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
 
 
 def hyperparameter_search(model_name,
@@ -9,7 +9,7 @@ def hyperparameter_search(model_name,
                           y_train):
     print(f"{search_method.__name__} Optimization du modèle {model_name}...")
     search = None
-    # Handling RandomizedSearchCV vs GridSearchCV
+    # Handling RandomizedSearchCV
     if search_method == RandomizedSearchCV:
         search = search_method(estimator=model,
                                param_distributions=param_grid,
@@ -18,14 +18,6 @@ def hyperparameter_search(model_name,
                                scoring='accuracy',
                                verbose=1,
                                n_jobs=-1)
-    elif search_method == GridSearchCV:
-        search = search_method(estimator=model,
-                               param_grid=param_grid,
-                               cv=5,
-                               scoring='accuracy',
-                               verbose=1,
-                               n_jobs=-1)
-
     search.fit(x_train_scaled, y_train)
     print(f"{search_method.__name__} Meilleur score pour {model_name} : {search.best_score_}")
     print(f"{search_method.__name__} Meilleurs hyperparamètres pour {model_name} : {search.best_params_}")
