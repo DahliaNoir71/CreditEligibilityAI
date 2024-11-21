@@ -2,6 +2,7 @@ from IPython.core.display_functions import display
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 
 from src.csv import get_data_from_csv
+from src.evaluations import evaluate_models
 from src.models import get_models
 from src.optimizations import get_best_models
 from src.param_grids import get_param_grids
@@ -31,10 +32,9 @@ def main():
     param_grids = get_param_grids()
 
     # Recherche des meilleurs modèles
-    best_models_grid_search = get_best_models(models, param_grids, RandomizedSearchCV, x_train, y_train)
+    best_models = get_best_models(models, param_grids, RandomizedSearchCV, x_train, y_train)
 
-    # Affichage des meilleurs modèles
-    display(best_models_grid_search)
+    evaluate_models(best_models, x_test, y_test)
 
 
 if __name__ == '__main__':
