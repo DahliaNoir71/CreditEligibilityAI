@@ -39,31 +39,22 @@ def transform_categorical_to_numeric(df):
 
 
 def handle_missing_values(df):
-    """
-    Gère les valeurs manquantes dans un DataFrame.
+    # Identifier les colonnes catégorielles et numériques
+    categorical_cols = df.select_dtypes(include=['object']).columns
+    numerical_cols = df.select_dtypes(exclude=['object']).columns
 
-    - Les colonnes catégoriques sont imputées avec la valeur la plus fréquente (mode).
-    - Les colonnes numériques sont imputées avec la médiane.
+    # Imputer les valeurs manquantes pour les colonnes catégorielles
+    mode_imputer = SimpleImputer(strategy='most_frequent')
 
-    Parameters:
-    - df (pd.DataFrame): Le DataFrame contenant des valeurs manquantes.
+    # Appliquer l'imputation seulement aux colonnes non vides
+    categorical_cols = [col for col in categorical_cols if df[col].notna().any()]
 
-    Returns:
-    - pd.DataFrame: Le DataFrame avec les NaN gérés.
-    """
-    # Identifier les colonnes catégoriques et numériques
-    categorical_cols = df.select_dtypes(include=['object', 'category']).columns
-    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
-
-    # Imputation pour les colonnes catégoriques (valeur la plus fréquente)
-    if len(categorical_cols) > 0:
-        mode_imputer = SimpleImputer(strategy='most_frequent')
+    if categorical_cols:  # Si des colonnes existent à imputer
         df[categorical_cols] = mode_imputer.fit_transform(df[categorical_cols])
 
-    # Imputation pour les colonnes numériques (médiane)
-    if len(numeric_cols) > 0:
-        median_imputer = SimpleImputer(strategy='median')
-        df[numeric_cols] = median_imputer.fit_transform(df[numeric_cols])
+    # Imputer les valeurs manquantes pour les colonnes numériques
+    mean_imputer = SimpleImputer(strategy='mean')
+    df[numerical_cols] = mean_imputer.fit_transform(df[numerical_cols])
 
     return df
 

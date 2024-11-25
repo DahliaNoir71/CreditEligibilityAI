@@ -31,18 +31,14 @@ def display_classification_report(y_test, y_pred, model_name):
 
 
 def display_confusion_matrix(model, x_test, y_test, model_name):
-    """
-    Affiche la matrice de confusion pour un modèle.
-    """
-    # Fermer toutes les figures précédentes avant d'en créer une nouvelle
-    plt.close()
-
     # Création de la matrice de confusion
     cm_display = ConfusionMatrixDisplay.from_estimator(model, x_test, y_test)
 
-    # Affichage avec des paramètres visuels personnalisés
-    cm_display.plot(cmap='Blues', values_format='d')
-    plt.title(f"Matrice de confusion pour {model_name}")
+    # Récupération de l'axe de la matrice de confusion générée
+    ax = cm_display.plot(cmap='Blues', values_format='d')
+
+    # Affichage de la heatmap
+    plt.tight_layout()  # Ajuste les éléments pour éviter le chevauchement
     plt.show()
 
 
