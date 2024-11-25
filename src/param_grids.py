@@ -1,29 +1,26 @@
+from skopt.space import Real, Integer, Categorical
+
 def get_param_grids():
-    """Retourne les grilles d'hyperparamètres pour chaque modèle."""
+    """Retourne les grilles d'hyperparamètres pour chaque modèle adaptées à la Bayesian Optimization."""
     return {
         "Logistic Regression": {
-            'C': [0.01, 0.1, 1, 10, 100],
-            'penalty': ['l1', 'l2'],
-            'solver': ['liblinear', 'saga'],
-            'class_weight': [None, 'balanced']
+            'C': Real(0.001, 100, prior='log-uniform'),  # C est souvent optimisé logarithmiquement
+            'penalty': Categorical(['l1', 'l2']),
+            'solver': Categorical(['liblinear', 'saga']),
+            'class_weight': Categorical([None, 'balanced'])
         },
         "K-Nearest Neighbors": {
-            'n_neighbors': range(1, 31),
-            'weights': ['uniform', 'distance']
-        },
-        "Support Vector Machine": {
-            'C': [0.1, 1, 10, 100],
-            'kernel': ['linear', 'poly', 'rbf'],
-            'gamma': ['scale', 'auto']
+            'n_neighbors': Integer(1, 30),  # Intervalle entier pour les voisins
+            'weights': Categorical(['uniform', 'distance'])
         },
         "Random Forest": {
-            'n_estimators': [100, 200, 500],
-            'max_depth': [None, 10, 20, 50],
-            'min_samples_split': [2, 5, 10]
+            'n_estimators': Integer(50, 500),  # Nombre d'arbres
+            'max_depth': Integer(3, 50),  # Profondeur des arbres
+            'min_samples_split': Integer(2, 10)  # Taille minimale des nœuds
         },
         "XGBoost": {
-            'n_estimators': [50, 100, 200],
-            'learning_rate': [0.01, 0.1, 0.3],
-            'max_depth': [3, 6, 9]
+            'n_estimators': Integer(50, 300),  # Nombre d'estimateurs
+            'learning_rate': Real(0.01, 0.3, prior='log-uniform'),  # Taux d'apprentissage
+            'max_depth': Integer(3, 10)  # Profondeur maximale des arbres
         }
     }

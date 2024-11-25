@@ -10,5 +10,5 @@ def get_models():
         "Logistic Regression": LogisticRegression(),
         "K-Nearest Neighbors": KNeighborsClassifier(),
         "Random Forest": RandomForestClassifier(),
-        "XGBoost": XGBClassifier()
+        "XGBoost": XGBClassifier()  # Importation de la bibliothèque SVM pour SVM
     }

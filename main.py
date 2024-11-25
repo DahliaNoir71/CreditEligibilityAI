@@ -1,5 +1,5 @@
-from IPython.core.display_functions import display
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
+from skopt import BayesSearchCV
 
 from src.csv import get_data_from_csv
 from src.evaluations import evaluate_models
@@ -23,7 +23,7 @@ def main():
 
     # Chargement et prétraitement des données
     df_data = get_data_from_csv(csv_path, target, selected_features, column_id)
-    explore_dataframe(df_data, target)
+    # explore_dataframe(df_data, target)
     train_data, predict_data = split_train_predict(df_data, target)
     train_data = clean_loan_data(train_data)
     x, y = split_target_features(train_data, target)
@@ -34,9 +34,9 @@ def main():
     param_grids = get_param_grids()
 
     # Recherche des meilleurs modèles
-    # best_models = get_best_models(models, param_grids, RandomizedSearchCV, x_train, y_train)
+    best_models = get_best_models(models, param_grids, BayesSearchCV, x_train, y_train)
 
-    # evaluate_models(best_models, x_test, y_test)
+    evaluate_models(best_models, x_test, y_test)
 
 
 if __name__ == '__main__':

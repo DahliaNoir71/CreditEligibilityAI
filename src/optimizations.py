@@ -1,4 +1,5 @@
-from sklearn.model_selection import RandomizedSearchCV
+from skopt import BayesSearchCV
+from sklearn.model_selection import train_test_split
 
 
 def hyperparameter_search(model_name,
@@ -7,14 +8,28 @@ def hyperparameter_search(model_name,
                           param_grid,
                           x_train_scaled,
                           y_train):
+    """
+    Effectue une recherche d'hyperparamètres pour un modèle donné en utilisant la méthode spécifiée.
+
+    Paramètres :
+        - model_name : Nom du modèle.
+        - model : Modèle à optimiser.
+        - search_method : Méthode de recherche (BayesSearchCV ou autre).
+        - param_grid : Grille des hyperparamètres.
+        - x_train_scaled : Données d'entraînement (features).
+        - y_train : Données d'entraînement (cibles).
+
+    Retourne :
+        - Le modèle optimisé avec les meilleurs hyperparamètres.
+    """
     print(f"{search_method.__name__} Optimization du modèle {model_name}...")
     search = None
 
-    # Handling RandomizedSearchCV
-    if search_method == RandomizedSearchCV:
+    # Handling Bayesian Optimization
+    if search_method == BayesSearchCV:
         search = search_method(estimator=model,
-                               param_distributions=param_grid,
-                               n_iter=param_grid.get('n_iter', 10),  # Default n_iter if not present
+                               search_spaces=param_grid,
+                               n_iter=param_grid.get('n_iter', 30),  # Default n_iter if not present
                                cv=5,
                                scoring='accuracy',
                                verbose=1,
@@ -33,6 +48,19 @@ def hyperparameter_search(model_name,
 
 
 def get_best_models(models, param_grid, search_method, x_train_scaled, y_train):
+    """
+    Optimise une liste de modèles avec une méthode de recherche spécifiée.
+
+    Paramètres :
+        - models : Dictionnaire de modèles à optimiser (nom -> modèle).
+        - param_grid : Dictionnaire de grilles d'hyperparamètres.
+        - search_method : Méthode de recherche (BayesSearchCV ou autre).
+        - x_train_scaled : Données d'entraînement (features).
+        - y_train : Données d'entraînement (cibles).
+
+    Retourne :
+        - Un dictionnaire contenant les meilleurs modèles.
+    """
     # Dictionnaire pour stocker les meilleurs modèles
     best_models = {}
 
