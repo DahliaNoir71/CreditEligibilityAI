@@ -2,35 +2,38 @@ import seaborn as sns
 import missingno as msno
 import matplotlib.pyplot as plt
 
-def visualize_distribution(df_data, max_plots_per_figure=6):
+
+def visualize_distribution(df_data):
     """
-    Visualise la distribution des colonnes numériques du DataFrame.
-    Crée plusieurs graphiques si le nombre de colonnes dépasse max_plots_per_figure.
+    Visualise la distribution des colonnes numériques d'un DataFrame.
+    Affiche un histogramme et un boxplot pour chaque colonne, une figure par colonne.
+
+    Paramètres:
+        df_data (pd.DataFrame): Le DataFrame contenant les colonnes à visualiser.
     """
     numeric_columns = df_data.select_dtypes(include=['float64', 'int64']).columns
-    num_plots = len(numeric_columns)
 
-    if num_plots == 0:
-        print("No numeric columns found to visualize.")
+    if len(numeric_columns) == 0:
+        print("Aucune colonne numérique trouvée à visualiser.")
         return
 
-    for start_idx in range(0, num_plots, max_plots_per_figure):
-        subset_columns = numeric_columns[start_idx:start_idx + max_plots_per_figure]
-        num_cols = 3
-        num_rows = (len(subset_columns) + num_cols - 1) // num_cols
-        fig, axes = plt.subplots(num_rows, num_cols, figsize=(12, 4 * num_rows))
-        axes = axes.flatten()
+    for column in numeric_columns:
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
-        for i, column in enumerate(subset_columns):
-            sns.histplot(df_data[column], ax=axes[i], kde=True)
-            sns.boxplot(x=df_data[column], ax=axes[i])
-            axes[i].set_title(column, fontsize=12)
+        # Histogram with KDE
+        sns.histplot(df_data[column], ax=axes[0], kde=True)
+        axes[0].set_title(f"Histogramme avec KDE : {column}", fontsize=14)
+        axes[0].set_xlabel(column)
+        axes[0].set_ylabel("Fréquence")
 
-        for j in range(len(subset_columns), len(axes)):
-            fig.delaxes(axes[j])
+        # Boxplot
+        sns.boxplot(x=df_data[column], ax=axes[1], orient='h')
+        axes[1].set_title(f"Boxplot : {column}", fontsize=14)
+        axes[1].set_xlabel(column)
 
         plt.tight_layout()
         plt.show()
+
 
 def visualize_categorical_distribution(df_data):
     """
@@ -38,10 +41,19 @@ def visualize_categorical_distribution(df_data):
     """
     categorical_columns = df_data.select_dtypes(include=['object', 'category']).columns
     for column in categorical_columns:
-        plt.figure(figsize=(8, 6))
-        sns.countplot(x=df_data[column], palette="Set2")
+        plt.figure(figsize=(10, 6))
+        ax = sns.countplot(x=column, data=df_data, hue=column, legend=False, palette="Set2")
         plt.title(f"Distribution de {column}")
-        plt.xticks(rotation=45)
+        plt.xticks(rotation=45, ha='right')
+        
+        # Add value labels on top of each bar
+        for p in ax.patches:
+            ax.annotate(f'{int(p.get_height())}', 
+                        (p.get_x() + p.get_width() / 2., p.get_height()),
+                        ha = 'center', va = 'center', 
+                        xytext = (0, 5), textcoords = 'offset points')
+        
+        plt.tight_layout()
         plt.show()
 
 def visualize_correlations(df_data, target_column=None):
@@ -75,6 +87,79 @@ def visualize_missing_data(df_data):
     plt.show()
 
 
+def visualize_target_correlation(df_data, target_column):
+    """
+    Visualise les relations entre une variable cible et les autres colonnes
+    du DataFrame, en affichant des graphiques adaptés au type de données.
+
+    Paramètres:
+        df_data (pd.DataFrame): Le DataFrame contenant les données.
+        target_column (str): Le nom de la colonne cible.
+    """
+    if target_column not in df_data.columns:
+        print(f"La colonne cible '{target_column}' n'existe pas dans le DataFrame.")
+        return
+
+    # Vérifie si la cible est catégorique ou numérique
+    is_target_categorical = df_data[target_column].dtype == 'object' or \
+                            df_data[target_column].nunique() < 10
+
+    for column in df_data.columns:
+        if column == target_column:
+            continue
+
+        plt.figure(figsize=(10, 5))
+
+        if df_data[column].dtype in ['float64', 'int64']:
+            # Si la colonne est numérique
+            if is_target_categorical:
+                # Boxplot pour une cible catégorique
+                sns.boxplot(data=df_data, x=target_column, y=column)
+                plt.title(f"Boxplot de {column} par {target_column}")
+            else:
+                # Scatterplot pour une cible numérique
+                sns.scatterplot(data=df_data, x=column, y=target_column)
+                plt.title(f"Scatterplot entre {column} et {target_column}")
+        else:
+            # Si la colonne est catégorique
+            if is_target_categorical:
+                # Countplot pour une cible catégorique
+                sns.countplot(data=df_data, x=column, hue=target_column)
+                plt.title(f"Répartition de {column} par {target_column}")
+            else:
+                # Barplot pour une cible numérique
+                sns.barplot(data=df_data, x=column, y=target_column, ci=None)
+                plt.title(f"Moyenne de {target_column} par {column}")
+
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
+
+
+def visualize_outliers(df_data):
+    """
+    Visualise les outliers dans les colonnes numériques du DataFrame
+    à l'aide de boxplots.
+
+    Paramètres:
+        df_data (pd.DataFrame): Le DataFrame contenant les données.
+    """
+    numeric_columns = df_data.select_dtypes(include=['float64', 'int64']).columns
+
+    if len(numeric_columns) == 0:
+        print("Aucune colonne numérique trouvée pour l'analyse des outliers.")
+        return
+
+    for column in numeric_columns:
+        plt.figure(figsize=(10, 5))
+        sns.boxplot(x=df_data[column], orient='h',
+                    flierprops={"marker": "o", "markerfacecolor": "red", "markersize": 5})
+        plt.title(f"Détection des outliers pour {column}")
+        plt.xlabel(column)
+        plt.tight_layout()
+        plt.show()
+
+
 
 
 def explore_dataframe(df_data, target_column):
@@ -95,8 +180,3 @@ def explore_dataframe(df_data, target_column):
 
     # Identification des outliers
     visualize_outliers(df_data)
-
-    # Distribution de la variable cible
-    sns.countplot(x=df_data[target_column])
-    plt.title(f"Distribution de la variable cible : {target_column}")
-    plt.show()
