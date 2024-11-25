@@ -81,9 +81,19 @@ def visualize_correlations(df_data, target_column=None):
 
 def visualize_missing_data(df_data):
     """
-    Affiche la visualisation des valeurs manquantes pour chaque colonne.
+    Affiche la visualisation des valeurs manquantes pour chaque colonne avec personnalisation.
     """
-    msno.matrix(df_data)
+    # Créer la matrice de valeurs manquantes
+    plt.figure(figsize=(10, 6))
+    msno.matrix(df_data, figsize=(10, 6), sparkline=True, color=(0.8, 0.0, 0.0))  # Personnalisation de la couleur
+
+    # Ajouter un titre
+    plt.title("Visualisation des valeurs manquantes", fontsize=16)
+
+    # Ajouter une légende
+    plt.legend(title="Présence des données", loc="best", fontsize=12)
+
+    # Afficher le graphique
     plt.show()
 
 

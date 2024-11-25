@@ -3,17 +3,32 @@ import joblib
 from IPython.core.display_functions import display
 from sklearn.model_selection import train_test_split
 from src.csv import get_data_from_csv
-from src.preprocessing import split_train_predict, clean_loan_data, split_target_features
+from src.explorations import explore_dataframe
+from src.preprocessing import split_train_predict, clean_loan_data, split_target_features, \
+    transform_categorical_to_numeric
+
 
 def prepare_data(csv_path, target, selected_features, column_id):
     """
     Charge et prépare les données pour l'entraînement et la prédiction.
     """
     df_data = get_data_from_csv(csv_path, target, selected_features, column_id)
+    explore_dataframe(df_data, target)
     train_data, predict_data = split_train_predict(df_data, target)
+
+    # Nettoyage des données
     train_data = clean_loan_data(train_data)
     predict_data = clean_loan_data(predict_data)
-    return train_data, predict_data
+
+    # Appliquer la transformation catégorique sur les deux ensembles de données (entraînement et prédiction)
+    train_data, label_encoders = transform_categorical_to_numeric(train_data)
+    predict_data, _ = transform_categorical_to_numeric(predict_data, label_encoders)
+
+    explore_dataframe(train_data, target)
+
+
+
+    return train_data, predict_data, label_encoders
 
 
 

@@ -21,10 +21,7 @@ def main():
     data_dir = 'data'
 
     # Préparation des données
-    train_data, predict_data = prepare_data(csv_path, target, selected_features, column_id)
-
-    #explore_dataframe(train_data, target)
-
+    train_data, predict_data, label_encoders  = prepare_data(csv_path, target, selected_features, column_id)
 
     # Diviser les données d'entraînement et d'évaluation
     x_train, x_test, y_train, y_test = split_and_train_data(train_data, target)

@@ -31,15 +31,27 @@ def display_classification_report(y_test, y_pred, model_name):
 
 
 def display_confusion_matrix(model, x_test, y_test, model_name):
-    # Création de la matrice de confusion
+    """
+    Affiche la matrice de confusion et ajoute un colorbar si nécessaire.
+    """
+    # Créer la matrice de confusion
     cm_display = ConfusionMatrixDisplay.from_estimator(model, x_test, y_test)
 
-    # Récupération de l'axe de la matrice de confusion générée
-    ax = cm_display.plot(cmap='Blues', values_format='d')
+    # Afficher la matrice de confusion
+    cm_display.plot(cmap='Blues', values_format='d')
 
-    # Affichage de la heatmap
-    plt.tight_layout()  # Ajuste les éléments pour éviter le chevauchement
+    # Vérifier si la colorbar existe, sinon l'ajouter manuellement
+    if len(cm_display.ax_.collections) > 0:
+        cbar = cm_display.ax_.collections[0].colorbar
+        cbar.set_label("Nombre de prédictions")
+
+    # Ajouter un titre
+    plt.title(f"Matrice de confusion pour {model_name}")
+
+    # Afficher le graphique
     plt.show()
+
+    
 
 
 def plot_comparison(results_df):

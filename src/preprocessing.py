@@ -5,18 +5,28 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import LabelEncoder
 
 
-def transform_categorical_to_numeric(df):
+def transform_categorical_to_numeric(df, label_encoders=None):
     """
-    Transforme les colonnes catégoriques en numériques.
-    Les colonnes binaires sont transformées en 0/1, et les colonnes non-binaires
-    sont encodées avec LabelEncoder.
+    Transform categorical columns to numeric values.
+
+    This function converts binary categorical columns to 0/1 and encodes non-binary
+    categorical columns using LabelEncoder. It allows reusing encodings for predictions.
 
     Parameters:
-    - df (pd.DataFrame): Le DataFrame contenant des colonnes catégoriques.
+    df (pd.DataFrame): The DataFrame containing categorical columns to be transformed.
+    label_encoders (dict, optional): Dictionary of pre-existing encoders for non-binary columns.
+                                     Defaults to None.
 
     Returns:
-    - pd.DataFrame: Le DataFrame avec les colonnes catégoriques transformées.
+    tuple: A tuple containing two elements:
+        - pd.DataFrame: The DataFrame with categorical columns transformed to numeric.
+        - dict: Dictionary of LabelEncoders for each non-binary column (if not provided initially).
+
     """
+    # Si aucun label_encoder n'est passé, on le crée
+    if label_encoders is None:
+        label_encoders = {}
+
     # Identifier les colonnes catégoriques
     categorical_cols = df.select_dtypes(include=['object', 'category']).columns
 
@@ -29,13 +39,17 @@ def transform_categorical_to_numeric(df):
         df[col] = df[col].map({df[col].unique()[0]: 0, df[col].unique()[1]: 1}).astype(int)
 
     # Transformer les colonnes non-binaires
-    label_encoder = LabelEncoder()
     for col in non_binary_cols:
-        # Assurez-vous que la colonne est de type chaîne de caractères (str)
-        df[col] = df[col].astype(str)
-        df[col] = label_encoder.fit_transform(df[col])
+        # Si l'encoder pour la colonne existe, l'appliquer
+        if col in label_encoders:
+            df[col] = label_encoders[col].transform(df[col].astype(str))
+        else:
+            # Sinon, créer un nouveau LabelEncoder et l'appliquer
+            le = LabelEncoder()
+            df[col] = le.fit_transform(df[col].astype(str))
+            label_encoders[col] = le  # Sauvegarder l'encoder pour réutilisation future
 
-    return df
+    return df, label_encoders
 
 
 def handle_missing_values(df):
@@ -68,8 +82,6 @@ def clean_loan_data(df):
     # One-hot encoding pour 'Property_Area'
     df = pd.get_dummies(df, columns=['Property_Area'], drop_first=True)
     df = handle_missing_values(df)
-
-    df = transform_categorical_to_numeric(df)
 
     return df
 
